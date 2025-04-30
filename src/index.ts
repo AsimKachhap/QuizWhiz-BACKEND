@@ -1,6 +1,18 @@
+import express from "express";
+import http from "http";
 import { WebSocketServer } from "ws";
 
-const wss = new WebSocketServer({ port: 8000 });
+const app = express();
+const PORT = process.env.PORT || 8000;
+
+const httpServer = http.createServer(app);
+
+//EXPRESS ROUTE
+app.get("/", (req, res) => {
+  res.send("Hello from Express Server");
+});
+
+const wss = new WebSocketServer({ server: httpServer });
 
 wss.on("connection", (ws) => {
   ws.on("error", (error) => {
@@ -12,4 +24,8 @@ wss.on("connection", (ws) => {
     console.log(message);
   });
   ws.send("Hello from Backend");
+});
+
+httpServer.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
