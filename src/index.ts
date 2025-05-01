@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 8000;
 const httpServer = http.createServer(app);
 
 //EXPRESS ROUTE
-app.get("/", (req, res) => {
+app.get("/api/", (req, res) => {
   res.send("Hello from Express Server");
 });
 
