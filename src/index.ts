@@ -1,18 +1,58 @@
 import express from "express";
 import http from "http";
+import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
 import { WebSocketServer } from "ws";
+import { UserManager } from "./managers/UserManager";
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 8000;
+const JWT_SECRET = process.env.JWT_SECRET;
+const HEARTBEAT_INTERVAL = 1000 * 10; // 10 seconds
+const HEARTBEAT_VALUE = "1";
 
 const httpServer = http.createServer(app);
 
+//INITIALIZING UserManaer
+const userManager = new UserManager();
+
 //EXPRESS ROUTE
-app.get("/api/", (req, res) => {
+app.get("/", (req, res) => {
   res.send("Hello from Express Server");
 });
 
-const wss = new WebSocketServer({ server: httpServer });
+const wss = new WebSocketServer({ noServer: true });
+
+//AUTHORIZE ON UPGRADE
+
+httpServer.on("upgrade", (req, socket, head) => {
+  const url = new URL(req.url || "", `http://${req.headers.host}`);
+  const token = url.searchParams.get("token");
+  console.log(token);
+
+  if (!token || !JWT_SECRET) {
+    socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n ");
+    socket.destroy();
+    return;
+  }
+
+  try {
+    wss.handleUpgrade(req, socket, head, (ws) => {
+      userManager.addUser(token, ws);
+      console.log(userManager.getUsers());
+      wss.emit("connection", ws, req);
+    });
+  } catch (error) {
+    socket.write("401 Forbidden \r\n\r\n");
+    socket.destroy();
+  }
+});
+
+const ping = (ws: WebSocket) => {
+  ws.send(HEARTBEAT_VALUE); // Expects a string but I want to send a number
+};
 
 wss.on("connection", (ws) => {
   ws.on("error", (error) => {
@@ -23,6 +63,7 @@ wss.on("connection", (ws) => {
     const message = JSON.parse(data);
     console.log(message);
   });
+
   ws.send("Hello from Backend");
 });
 
