@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { WebSocketServer } from "ws";
 import { UserManager } from "./managers/UserManager";
+import { register } from "module";
 
 dotenv.config();
 
@@ -22,6 +23,32 @@ const userManager = new UserManager();
 app.get("/", (req, res) => {
   res.send("Hello from Express Server");
 });
+
+// API endpoints to implement
+
+/****** AUTHENTICATION ******/
+/* 
+POST/api/auth/register
+POST/api/auth/login
+*/
+
+/****** QUIZ MANAGEMENT *****/
+/* 
+  POST/api/quizzes
+  GET/api/quizzes/:id
+*/
+
+/****** QUESTION MANAGEMENT ******/
+/*
+  POST/api/quizzes/:id/questions
+  GET/api/quizzess/:id/questions/:id
+*/
+
+/****** RESULT MANAGEMENT ******/
+/* 
+  POST/api/quizzes/:id/results
+  GET/api/quizzess/:id/leaderboard
+*/
 
 const wss = new WebSocketServer({ noServer: true });
 
