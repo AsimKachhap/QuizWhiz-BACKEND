@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { WebSocketServer } from "ws";
 import { UserManager } from "./managers/UserManager";
-import { register } from "module";
+import authRoutes from "./routes/auth.route";
 
 dotenv.config();
 
@@ -23,6 +23,12 @@ const userManager = new UserManager();
 app.get("/", (req, res) => {
   res.send("Hello from Express Server");
 });
+
+//MIDDLEWARES
+
+console.log("Hello just before AuthRoute");
+app.use("/api/v1/auth", authRoutes);
+console.log("Auth Route is being called");
 
 // API endpoints to implement
 
