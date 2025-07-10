@@ -3,6 +3,7 @@ import http from "http";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { WebSocketServer } from "ws";
+import connectDB from "./utils/db";
 import { UserManager } from "./managers/UserManager";
 import authRoutes from "./routes/auth.route";
 
@@ -15,20 +16,21 @@ const HEARTBEAT_INTERVAL = 1000 * 10; // 10 seconds
 const HEARTBEAT_VALUE = "1";
 
 const httpServer = http.createServer(app);
+connectDB();
+app.use(express.json());
 
 //INITIALIZING UserManaer
 const userManager = new UserManager();
 
 //EXPRESS ROUTE
+
 app.get("/", (req, res) => {
   res.send("Hello from Express Server");
 });
 
 //MIDDLEWARES
 
-console.log("Hello just before AuthRoute");
 app.use("/api/v1/auth", authRoutes);
-console.log("Auth Route is being called");
 
 // API endpoints to implement
 
